@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "d3": "^5.7.0",
+    "d3-drag": "^1.2.3",
     "react": "^16.6.3",
     "react-d3-graph": "^2.0.0-rc2",
     "react-dom": "^16.6.3",
