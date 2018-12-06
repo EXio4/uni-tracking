@@ -25,7 +25,7 @@ const rawData = [
   ["340318","Paradigmas y Lenguajes",["209","210","213"]],
   ["340319","Ética Profesional",["106","208"]],
   ["340320","Programación Avanzada",["209","210"]],
-  ["340321","Taller de Integración",[]],
+  ["340321","Taller de Integración",["314","315", "316", "317", "318", "319","320"]], // hack
   ["340422","Inteligencia Artificial",["315","317","318"]],
   ["340423","Bases de Datos Avanzadas",["315","320"]],
   ["340424","Comunicaciones y Redes",["316","317"]],
@@ -37,19 +37,53 @@ const rawData = [
   ["340530","Seguridad y Auditoria",["319","424"]],
   ["340531","Administración de Recursos",["423","424"]],
   ["340532","Teoría de Computabilidad",["318","423","424"]],
-  ["340533","Tesina de Grado", []],
+  ["340533","Tesina de Grado", ["530","531", "532", "534"]], // hack
   ["340534","Interfaz Hombre Máquina",["320","428"]],
   ["340535","Optativa 3",["423"]]
-];
+].map(x => [x[0], x[1], x[2].map(e => '340'+e)]);
+
+const passed = [
+  101, 102, 103, 104, 105, 106, 107,
+  208, 209, 210, 211, 212, 213,
+  314, 315, 316, 317, 318, 319, 320,
+  423, 426
+].map((x) => '340'+x)
+
+const regular = [
+  424, 428, 
+].map((x) => '340'+x)
+
+
+const partialPass = (id) => {
+  return (passed.findIndex((i) => i===id) !== -1) || (regular.findIndex((i) => i===id) !== -1)
+}
+
+const getEstado = (id) => {
+  if (passed.findIndex((i) => i===id) !== -1) {
+    return 'blue'
+  } else if (regular.findIndex((i) => i===id) !== -1) {
+    return 'green'
+  } else {
+    const requirements = rawData.find(x => x[0] === id)
+    const works = requirements[2].every((x) => partialPass(x))
+    console.log(id, requirements, works)
+    if (works) {
+      return 'orange'
+    } else {
+      return 'red'
+    }
+  }
+}
 
 // graph payload (with minimalist structure)
 const defaultData = {
   nodes: rawData.map((x) => ({
     id: x[0],
     name: x[1],
+    color: getEstado(x[0])
   })),
   links: rawData.flatMap((x) => x[2].map((e) => ({
-    source: "340"+e,
+    source: e,
     target: x[0]
   })))
 };
@@ -57,16 +91,20 @@ const defaultData = {
 // the graph configuration, you only need to pass down properties
 // that you want to override, otherwise default ones will be used
 const myConfig = {
+  height: 600 * 1.75,
+  width: 1024 * 1.75,
+  directed: true,
   nodeHighlightBehavior: true,
   node: {
-      color: 'blue',
+      symbolType: 'diamond',
       size: 120,
-      fontColor: 'white',
+      fontColor: '#ffa022',
       highlightStrokeColor: 'white',
       labelProperty: 'name',
   },
   link: {
-      highlightColor: 'lightblue'
+      color: '#616',
+      highlightColor: 'lightblue',
   },
   d3: {
     gravity: -400,
@@ -83,7 +121,7 @@ class App extends Component {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        background: '#444',
+        background: '#222',
       }}>
         <div style={{
           border: '1px solid #d32461',
@@ -92,8 +130,6 @@ class App extends Component {
               id='graph-id' // id is mandatory, if no id is defined rd3g will throw an error
               data={defaultData}
               config={myConfig}
-              height='600'
-              width='1024'
           />
         </div>
       </div>
